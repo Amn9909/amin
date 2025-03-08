@@ -2,83 +2,133 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Input } from "@/components/ui/input"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
-import { Card, CardContent } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Package, ChevronRight } from "lucide-react"
 
+// Mock data for orders
 const orders = [
-  { id: 1, date: "2025-02-15", total: 89.97, status: "Delivered" },
-  { id: 2, date: "2025-02-10", total: 129.99, status: "Shipped" },
-  { id: 3, date: "2025-02-05", total: 59.99, status: "Processing" },
-  // Add more orders as needed
+  {
+    id: "ORD001",
+    date: "2024-03-15",
+    total: 159.97,
+    status: "delivered",
+    items: [
+      { id: 1, name: "Classic T-Shirt", quantity: 2, price: 19.99 },
+      { id: 2, name: "Slim Fit Jeans", quantity: 1, price: 49.99 },
+      { id: 3, name: "Running Shoes", quantity: 1, price: 79.99 }
+    ]
+  },
+  {
+    id: "ORD002",
+    date: "2024-03-14",
+    total: 89.98,
+    status: "shipped",
+    items: [
+      { id: 4, name: "Floral Dress", quantity: 1, price: 39.99 },
+      { id: 5, name: "Leather Belt", quantity: 1, price: 49.99 }
+    ]
+  },
+  {
+    id: "ORD003",
+    date: "2024-03-13",
+    total: 129.97,
+    status: "packed",
+    items: [
+      { id: 6, name: "Winter Jacket", quantity: 1, price: 129.97 }
+    ]
+  },
+  {
+    id: "ORD004",
+    date: "2024-03-12",
+    total: 59.98,
+    status: "placed",
+    items: [
+      { id: 7, name: "Sports Shorts", quantity: 2, price: 29.99 }
+    ]
+  },
+  {
+    id: "ORD005",
+    date: "2024-03-11",
+    total: 89.99,
+    status: "cancelled",
+    items: [
+      { id: 8, name: "Sneakers", quantity: 1, price: 89.99 }
+    ]
+  }
 ]
 
-const OrderHistoryPage = () => {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("All")
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "delivered":
+      return "bg-green-500/10 text-green-500"
+    case "shipped":
+      return "bg-blue-500/10 text-blue-500"
+    case "packed":
+      return "bg-yellow-500/10 text-yellow-500"
+    case "placed":
+      return "bg-purple-500/10 text-purple-500"
+    case "cancelled":
+      return "bg-red-500/10 text-red-500"
+    default:
+      return "bg-gray-500/10 text-gray-500"
+  }
+}
 
-  const filteredOrders = orders.filter(
-    (order) => order.id.toString().includes(searchTerm) && (statusFilter === "All" || order.status === statusFilter),
-  )
+const OrderHistoryPage = () => {
+  const router = useRouter()
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Order History</h1>
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <Input
-          type="text"
-          placeholder="Search by order ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow"
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All Statuses</SelectItem>
-            <SelectItem value="Processing">Processing</SelectItem>
-            <SelectItem value="Shipped">Shipped</SelectItem>
-            <SelectItem value="Delivered">Delivered</SelectItem>
-          </SelectContent>
-        </Select>
+      <div className="flex flex-col gap-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Order History</h1>
+        </div>
+
+        <div className="grid gap-4">
+          {orders.map((order) => (
+            <motion.div
+              key={order.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => router.push(`/order-history/${order.id}`)}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-full bg-primary/10">
+                        <Package className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">Order #{order.id}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Placed on {new Date(order.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="font-semibold">${order.total.toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {order.items.length} {order.items.length === 1 ? "item" : "items"}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className={getStatusColor(order.status)}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Badge>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </div>
-      <motion.div
-        className="space-y-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {filteredOrders.map((order) => (
-          <motion.div key={order.id} whileHover={{ y: -2 }}>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-semibold">Order #{order.id}</h3>
-                    <p className="text-gray-600">Date: {order.date}</p>
-                  </div>
-                  <div>
-                    <p className="text-lg font-semibold">${order.total.toFixed(2)}</p>
-                    <p
-                      className={`text-sm ${
-                        order.status === "Delivered"
-                          ? "text-green-600"
-                          : order.status === "Shipped"
-                            ? "text-blue-600"
-                            : "text-yellow-600"
-                      }`}
-                    >
-                      {order.status}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </motion.div>
     </div>
   )
 }

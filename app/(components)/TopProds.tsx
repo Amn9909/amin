@@ -80,7 +80,7 @@ const TopSellingProducts = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-100">
+    <section className="py-16 bg-muted/50">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-8 text-center">Top Selling Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
@@ -92,26 +92,35 @@ const TopSellingProducts = () => {
               onClick={() => router.push(`/product/${product.id}`)}
               className="cursor-pointer"
             >
-              <Card>
+              <Card className="h-full bg-background">
                 <CardContent className="p-4">
-                  <img
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    className="w-full h-48 object-cover object-center mb-4 rounded-md"
-                  />
-                  <h3 className="text-lg font-semibold">{product.name}</h3>
-                  <p className="text-gray-600">${product.price.toFixed(2)}</p>
+                  <div className="relative aspect-square rounded-lg overflow-hidden bg-muted mb-4">
+                    <img
+                      src={product.image || "/placeholder.svg"}
+                      alt={product.name}
+                      className="w-full h-full object-cover object-center transition-transform hover:scale-105"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold line-clamp-1">{product.name}</h3>
+                  <p className="text-primary font-medium mt-1">${product.price.toFixed(2)}</p>
                 </CardContent>
-                <CardFooter className="flex gap-2">
+                <CardFooter className="flex gap-2 p-4 pt-0">
                   <Button
                     variant={wishlistItems.includes(product.id) ? "default" : "outline"}
                     size="icon"
                     className="shrink-0"
                     onClick={(e) => toggleWishlist(e, product)}
                   >
-                    <Heart className={`h-4 w-4 ${wishlistItems.includes(product.id) ? "fill-current" : ""}`} />
+                    <Heart 
+                      className={`h-4 w-4 transition-colors ${
+                        wishlistItems.includes(product.id) ? "fill-current" : ""
+                      }`} 
+                    />
                   </Button>
-                  <Button className="w-full" onClick={(e) => addToCart(e, product)}>
+                  <Button 
+                    className="w-full" 
+                    onClick={(e) => addToCart(e, product)}
+                  >
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Add to Cart
                   </Button>

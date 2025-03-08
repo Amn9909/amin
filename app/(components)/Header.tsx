@@ -32,6 +32,34 @@ const products = [
   { id: 4, name: "Running Shoes", price: 79.99, category: "Accessories", image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0" },
 ]
 
+// Add this hook to manage cart state
+const useCart = () => {
+  const [cartItemCount, setCartItemCount] = useState(0)
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem("cart") || "[]")
+      const count = cart.reduce((total: number, item: any) => total + item.quantity, 0)
+      setCartItemCount(count)
+    }
+
+    // Initial count
+    updateCartCount()
+
+    // Listen for storage changes
+    window.addEventListener("storage", updateCartCount)
+    // Custom event for cart updates
+    window.addEventListener("cartUpdated", updateCartCount)
+
+    return () => {
+      window.removeEventListener("storage", updateCartCount)
+      window.removeEventListener("cartUpdated", updateCartCount)
+    }
+  }, [])
+
+  return { cartItemCount }
+}
+
 const Header = () => {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
@@ -39,6 +67,7 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchResults, setSearchResults] = useState<typeof products>([])
   const [isMounted, setIsMounted] = useState(false)
+  const { cartItemCount } = useCart()
 
   useEffect(() => {
     setIsMounted(true)
@@ -154,8 +183,13 @@ const Header = () => {
                 </Button>
               </Link>
               <Link href="/cart">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                      {cartItemCount}
+                    </span>
+                  )}
                 </Button>
               </Link>
               <DropdownMenu>
@@ -211,7 +245,14 @@ const Header = () => {
                     Wishlist
                   </Link>
                   <Link href="/cart" className="flex items-center gap-2 py-2">
-                    <ShoppingCart className="h-5 w-5" />
+                    <div className="relative">
+                      <ShoppingCart className="h-5 w-5" />
+                      {cartItemCount > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 text-xs flex items-center justify-center">
+                          {cartItemCount}
+                        </span>
+                      )}
+                    </div>
                     Cart
                   </Link>
                   <Link href="/profile" className="flex items-center gap-2 py-2">
