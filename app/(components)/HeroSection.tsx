@@ -51,12 +51,12 @@ const HeroSection = () => {
       >
         <ChevronRight className="h-4 w-4" />
       </Button>
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
+      {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-md px-4">
         <div className="relative">
           <Input type="text" placeholder="Search for products..." className="w-full pr-10" />
           <Button className="absolute right-0 top-0 bottom-0">Search</Button>
         </div>
-      </div>
+      </div> */}
     </section>
   )
 }
